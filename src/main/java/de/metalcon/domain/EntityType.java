@@ -79,7 +79,7 @@ public enum EntityType {
 	/**
 	 * Map to map identy type names (strings) to enums
 	 */
-	static TreeMap<String, EntityType> allTypesByString;
+	static TreeMap<String, EntityType> allTypesByString = new TreeMap<String, EntityType>();
 
 	/**
 	 * Fill allTypesByString
