@@ -1,10 +1,14 @@
 package de.metalcon.domain;
 
+import java.io.Serializable;
+
 /**
  * unique identifier for a Metalcon entity knowing the entity's type (Metalcon
  * Unique IDentifier)
  */
-public class Muid {
+public class Muid implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	public static final Muid EMPTY_MUID = new Muid(0);
 
