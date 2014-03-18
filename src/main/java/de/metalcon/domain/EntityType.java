@@ -1,5 +1,7 @@
 package de.metalcon.domain;
 
+import java.util.TreeMap;
+
 /**
  * enumeration of all entity types<br>
  * (Metalcon objects having an own page)<br>
@@ -18,116 +20,132 @@ package de.metalcon.domain;
  * </ul>
  */
 public enum EntityType {
+	/**
+	 * band linked to a genre
+	 */
+	BAND("band", (short) 0),
 
-    /**
-     * band linked to a genre
-     */
-    BAND("band"),
+	/**
+	 * city
+	 */
+	CITY("city", (short) 1),
 
-    /**
-     * city
-     */
-    CITY("city"),
+	/**
+	 * event hosted in a venue
+	 */
+	EVENT("event", (short) 2),
 
-    /**
-     * event hosted in a venue
-     */
-    EVENT("event"),
+	/**
+	 * metal genre
+	 */
+	GENRE("genre", (short) 3),
 
-    /**
-     * metal genre
-     */
-    GENRE("genre"),
+	/**
+	 * music instrument
+	 */
+	INSTRUMENT("instrument", (short) 4),
 
-    /**
-     * music instrument
-     */
-    INSTRUMENT("instrument"),
+	/**
+	 * record of a band
+	 */
+	RECORD("record", (short) 5),
 
-    /**
-     * record of a band
-     */
-    RECORD("record"),
+	/**
+	 * collection of events
+	 */
+	TOUR("tour", (short) 6),
 
-    /**
-     * collection of events
-     */
-    TOUR("tour"),
+	/**
+	 * record track
+	 */
+	TRACK("track", (short) 7),
 
-    /**
-     * record track
-     */
-    TRACK("track"),
+	/**
+	 * user
+	 */
+	USER("user", (short) 8),
 
-    /**
-     * user
-     */
-    USER("user"),
+	/**
+	 * venue located in a city
+	 */
+	VENUE("venue", (short) 9);
 
-    /**
-     * venue located in a city
-     */
-    VENUE("venue");
+	/**
+	 * Array to map raw identifier IDs to enums
+	 */
+	static final EntityType[] allTypes = { BAND, CITY, EVENT, GENRE,
+			INSTRUMENT, RECORD, TOUR, TRACK, USER, VENUE };
 
-    /**
-     * identifier of the entity type
-     */
-    private final String identifier;
+	/**
+	 * Map to map identy type names (strings) to enums
+	 */
+	static TreeMap<String, EntityType> allTypesByString;
 
-    /**
-     * create a new entity type
-     * 
-     * @param identifier
-     *            identifier of the entity type
-     */
-    private EntityType(
-            final String identifier) {
-        this.identifier = identifier;
-    }
+	/**
+	 * Fill allTypesByString
+	 */
+	static {
+		for (EntityType type : EntityType.values()) {
+			allTypesByString.put(type.getIdentifier(), type);
+		}
+	}
 
-    /**
-     * @return identifier of the entity type
-     */
-    public String getIdentifier() {
-        return identifier;
-    }
+	/**
+	 * identifier of the entity type
+	 */
+	private final String identifier;
 
-    @Override
-    public String toString() {
-        return identifier;
-    }
+	/**
+	 * Raw identifier of the entity type
+	 */
+	private final short rawValue;
 
-    /**
-     * 
-     * @param identifier
-     *            identifier of the entity type
-     * @return entity type having the identifier passed<br>
-     *         <b>null</b> if no entity type has such identifier
-     */
-    public static EntityType parseString(final String identifier) {
-        if (BAND.getIdentifier().equals(identifier)) {
-            return BAND;
-        } else if (CITY.getIdentifier().equals(identifier)) {
-            return CITY;
-        } else if (EVENT.getIdentifier().equals(identifier)) {
-            return EVENT;
-        } else if (GENRE.getIdentifier().equals(identifier)) {
-            return GENRE;
-        } else if (INSTRUMENT.getIdentifier().equals(identifier)) {
-            return INSTRUMENT;
-        } else if (RECORD.getIdentifier().equals(identifier)) {
-            return RECORD;
-        } else if (TOUR.getIdentifier().equals(identifier)) {
-            return TOUR;
-        } else if (TRACK.getIdentifier().equals(identifier)) {
-            return TRACK;
-        } else if (USER.getIdentifier().equals(identifier)) {
-            return USER;
-        } else if (VENUE.getIdentifier().equals(identifier)) {
-            return VENUE;
-        } else {
-            return null;
-        }
-    }
+	/**
+	 * create a new entity type
+	 * 
+	 * @param identifier
+	 *            identifier of the entity type
+	 */
+	private EntityType(final String identifier, final short rawValue) {
+		this.identifier = identifier;
+		this.rawValue = rawValue;
+	}
 
+	/**
+	 * @return identifier of the entity type
+	 */
+	public String getIdentifier() {
+		return identifier;
+	}
+
+	/**
+	 * @return short value identifying the entity type
+	 */
+	public short getRawIdentifier() {
+		return rawValue;
+	}
+
+	@Override
+	public String toString() {
+		return identifier;
+	}
+
+	/**
+	 * 
+	 * @param identifier
+	 *            identifier of the entity type
+	 * @return entity type having the identifier passed<br>
+	 *         <b>null</b> if no entity type has such identifier
+	 */
+	public static EntityType parseString(final String identifier) {
+		return (allTypesByString.get(identifier));
+	}
+
+	public static EntityType parseShort(final short identifier)
+			throws UnknownEntityIdentifierException {
+		if (identifier > allTypes.length) {
+			throw new UnknownEntityIdentifierException(identifier);
+		}
+		return allTypes[identifier];
+	}
 }
