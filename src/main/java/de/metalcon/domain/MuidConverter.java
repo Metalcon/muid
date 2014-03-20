@@ -13,7 +13,7 @@ import java.nio.ByteBuffer;
  * @author Jonas Kunze
  * 
  */
-public class MuidConverter {
+class MuidConverter {
 	private final static char[] folderChars = { '0', '1', '2', '3', '4', '5',
 			'6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
 
@@ -22,7 +22,7 @@ public class MuidConverter {
 			'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G',
 			'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
 			'U', 'V', 'W', 'X', 'Y', 'Z', '0', '1', '2', '3', '4', '5', '6',
-			'7', '8', '9', '_', '-' };
+			'7', '8', '9', '!', '~' };
 	public static final int base = DIGITS.length;
 	public static final BigInteger BASE = BigInteger.valueOf(base);
 
