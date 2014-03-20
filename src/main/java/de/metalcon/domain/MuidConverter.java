@@ -1,7 +1,6 @@
 package de.metalcon.domain;
 
-import java.math.BigInteger;
-import java.nio.ByteBuffer;
+import de.metalcon.exceptions.MetalconRuntimeException;
 
 /**
  * This class defines the 64 bit MUIDS and can generate, serialize and deserialize them 
@@ -13,7 +12,7 @@ import java.nio.ByteBuffer;
  * @author Jonas Kunze
  * 
  */
-class MuidConverter {
+public class MuidConverter {
 	private final static char[] folderChars = { '0', '1', '2', '3', '4', '5',
 			'6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
 
@@ -24,7 +23,6 @@ class MuidConverter {
 			'U', 'V', 'W', 'X', 'Y', 'Z', '0', '1', '2', '3', '4', '5', '6',
 			'7', '8', '9', '!', '~' };
 	public static final int base = DIGITS.length;
-	public static final BigInteger BASE = BigInteger.valueOf(base);
 
 	private final static int[] reverseTokens;
 	static {
@@ -40,12 +38,49 @@ class MuidConverter {
 	private final static short MUID_LENGTH = 11;
 
 	/**
+	 * 
+	 * @param type
+	 *            The type identifier to be checked
+	 * @return <true> if the type is a correct value
+	 */
+	public static boolean checkType(final short type) {
+		return type < getLargestAllowedType();
+	}
+
+	/**
+	 * 
+	 * @return the largest value a Muid type may have
+	 */
+	public static short getLargestAllowedType() {
+		return MuidType.getLargestAllowedType();
+	}
+
+	/**
+	 * 
+	 * @param type
+	 *            The source identifier to be checked
+	 * @return <true> if the source is a correct value
+	 */
+	public static boolean checkSource(final byte source) {
+		return source <= getLargestAllowedSourceID();
+	}
+
+	/**
+	 * 
+	 * @return the largest value a source ID may have
+	 */
+	public static short getLargestAllowedSourceID() {
+		return (short) (1 << 5) - 1;
+	}
+
+	/**
 	 * Generates a MUID containing the given information. The format of the MUID
 	 * is following (in big endianess):
 	 * 
-	 * Bit 0 is always 1 to force constant length of the alphanumeric version
+	 * Bit 0 is always 0 to force positive numbers for serialization
+	 * implementation
 	 * 
-	 * Bits 1-9 define the entity type (9 bit - 0-511 - 2 chars)
+	 * Bits 1-9 define the Muid type (9 bit - 0-511 - 2 chars)
 	 * 
 	 * Bit 10 is always 0 to enforce the first two tokens in the alphanumeric
 	 * version to be equal for each MUID with the same type
@@ -67,20 +102,10 @@ class MuidConverter {
 	 *            The relative ID within the given timestamp, source and type.
 	 * @return The MUID containing all the given information
 	 */
-	public static long generateMUID(final short type, final byte source,
-			final int timestamp, final short ID) {
-		if (type >= (1 << 9)) {
-			throw new RuntimeException("Type may not be larger or equal to "
-					+ (1 << 9));
-		}
-
-		if (source >= (1 << 5)) {
-			throw new RuntimeException("Source may not be larger or equal to "
-					+ (1 << 5));
-		}
-
+	public static long calculateMuidWithoutChecking(final short type,
+			final byte source, final int timestamp, final short ID) {
 		return
-		/* Highest bit is 1 for constant length */
+		/* Highest bit is 0 for serialization algorithm */
 		0l << (64 - 1)
 		/* Highest 9 bits are type */
 		| (((long) type & 511) << (64 - 9 - 1))
@@ -96,9 +121,19 @@ class MuidConverter {
 		| ID & 0xFFFFL;
 	}
 
-	public static long generateMUID(final EntityType type, final byte source,
+	public static long calculateMuid(final short type, final byte source,
 			final int timestamp, final short ID) {
-		return generateMUID(type.getRawIdentifier(), source, timestamp, ID);
+		if (!checkType(type)) {
+			throw new MetalconRuntimeException(
+					"Muid Type may not be larger or equal to " + (1 << 9));
+		}
+
+		if (!checkSource(source)) {
+			throw new MetalconRuntimeException(
+					"Muid Source may not be larger or equal to " + (1 << 5));
+		}
+
+		return calculateMuidWithoutChecking(type, source, timestamp, ID);
 	}
 
 	/**
@@ -152,8 +187,6 @@ class MuidConverter {
 	 *            The MUID to be parsed
 	 * @return The alphanumeric string corresponding to the given MUID
 	 */
-	private static final BigInteger TWO_64 = BigInteger.ONE.shiftLeft(64);
-
 	public static String serialize(long muid) {
 
 		StringBuilder string = new StringBuilder(13);
@@ -163,29 +196,6 @@ class MuidConverter {
 			muid = muid / base;
 		}
 		return string.toString();
-	}
-
-	public static String serialize2(long muid) {
-		// /*
-		// * Do not use Long.toString to interpret the uuid as unsigned long
-		// */
-		// byte[] bytes = ByteBuffer.allocate(8).putLong(muid).array();
-		// return new BigInteger(1, bytes).toString(RADIX);
-
-		BigInteger number = new BigInteger(ByteBuffer.allocate(8).putLong(muid)
-				.array());
-
-		if (number.signum() < 0) {
-			number = number.add(TWO_64);
-		}
-
-		StringBuilder result = new StringBuilder(MUID_LENGTH);
-		while (number.compareTo(BigInteger.ZERO) == 1) { // number > 0
-			BigInteger[] divmod = number.divideAndRemainder(BASE);
-			number = divmod[0];
-			result.insert(0, DIGITS[divmod[1].intValue()]);
-		}
-		return result.toString();
 	}
 
 	/**
@@ -243,7 +253,7 @@ class MuidConverter {
 		/*
 		 * Split the muid into shorts and xor them
 		 */
-		short hash = (short) ((muid ^ (muid >>> 16)) ^ ((muid >>> 32) ^ (muid >>> 48)));
+		short hash = generatePersistentHash(muid);
 		char[] paths = new char[3];
 		paths[0] = (char) ('a' + (hash & 15));
 		paths[1] = (char) ('a' + ((hash >> 4) & 15));
@@ -251,5 +261,9 @@ class MuidConverter {
 
 		return folderChars[(hash & 15)] + "/" + folderChars[((hash >> 4) & 15)]
 				+ "/" + folderChars[((hash >> 8) & 15)] + "/";
+	}
+
+	public static short generatePersistentHash(final long muid) {
+		return (short) ((muid ^ (muid >>> 16)) ^ ((muid >>> 32) ^ (muid >>> 48)));
 	}
 }

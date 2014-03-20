@@ -3,8 +3,7 @@ package de.metalcon.domain;
 import java.util.TreeMap;
 
 /**
- * enumeration of all entity types<br>
- * (Metalcon objects having an own page)<br>
+ * enumeration of all muid types<br>
  * <br>
  * <ul>
  * <li>band</li>
@@ -19,7 +18,7 @@ import java.util.TreeMap;
  * <li>venue</li>
  * </ul>
  */
-public enum EntityType {
+public enum MuidType {
 	/**
 	 * band linked to a genre
 	 */
@@ -73,53 +72,53 @@ public enum EntityType {
 	/**
 	 * Array to map raw identifier IDs to enums
 	 */
-	static final EntityType[] allTypes = { BAND, CITY, EVENT, GENRE,
-			INSTRUMENT, RECORD, TOUR, TRACK, USER, VENUE };
+	static final MuidType[] allTypes = { BAND, CITY, EVENT, GENRE, INSTRUMENT,
+			RECORD, TOUR, TRACK, USER, VENUE };
 
 	/**
 	 * Map to map identy type names (strings) to enums
 	 */
-	static TreeMap<String, EntityType> allTypesByString = new TreeMap<String, EntityType>();
+	static TreeMap<String, MuidType> allTypesByString = new TreeMap<String, MuidType>();
 
 	/**
 	 * Fill allTypesByString
 	 */
 	static {
-		for (EntityType type : EntityType.values()) {
+		for (MuidType type : MuidType.values()) {
 			allTypesByString.put(type.getIdentifier(), type);
 		}
 	}
 
 	/**
-	 * identifier of the entity type
+	 * identifier of the Muid type
 	 */
 	private final String identifier;
 
 	/**
-	 * Raw identifier of the entity type
+	 * Raw identifier of the Muid type
 	 */
 	private final short rawValue;
 
 	/**
-	 * create a new entity type
+	 * create a new Muid type
 	 * 
 	 * @param identifier
-	 *            identifier of the entity type
+	 *            identifier of the Muid type
 	 */
-	private EntityType(final String identifier, final short rawValue) {
+	private MuidType(final String identifier, final short rawValue) {
 		this.identifier = identifier;
 		this.rawValue = rawValue;
 	}
 
 	/**
-	 * @return identifier of the entity type
+	 * @return identifier of the Muid type
 	 */
 	public String getIdentifier() {
 		return identifier;
 	}
 
 	/**
-	 * @return short value identifying the entity type
+	 * @return short value identifying the Muid type
 	 */
 	public short getRawIdentifier() {
 		return rawValue;
@@ -133,19 +132,37 @@ public enum EntityType {
 	/**
 	 * 
 	 * @param identifier
-	 *            identifier of the entity type
-	 * @return entity type having the identifier passed<br>
-	 *         <b>null</b> if no entity type has such identifier
+	 *            identifier of the Muid type
+	 * @return Muid type having the identifier passed<br>
+	 *         <b>null</b> if no Muid type has such identifier
 	 */
-	public static EntityType parseString(final String identifier) {
+	public static MuidType parseString(final String identifier) {
 		return (allTypesByString.get(identifier));
 	}
 
-	public static EntityType parseShort(final short identifier)
-			throws UnknownEntityIdentifierException {
+	/**
+	 * 
+	 * @param identifier
+	 *            the number identifying the type.
+	 * @see MuidType.getMaximumAllowedType()
+	 * @return the enum identifying the Muid type corresponding to the given
+	 *         identifier
+	 * @throws UnknownMuidException
+	 *             thrown if the given identifier is invalid
+	 */
+	public static MuidType parseShort(final short identifier)
+			throws UnknownMuidException {
 		if (identifier > allTypes.length) {
-			throw new UnknownEntityIdentifierException(identifier);
+			throw new UnknownMuidException(identifier);
 		}
 		return allTypes[identifier];
+	}
+
+	/**
+	 * 
+	 * @return the largest muid type value allowed
+	 */
+	public static short getLargestAllowedType() {
+		return (short) MuidType.values().length;
 	}
 }

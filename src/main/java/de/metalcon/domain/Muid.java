@@ -3,13 +3,16 @@ package de.metalcon.domain;
 import java.io.Serializable;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import de.metalcon.exceptions.MetalconRuntimeException;
+
 /**
- * unique identifier for a Metalcon entity knowing the entity's type (Metalcon
- * Unique IDentifier)
+ * unique identifier for a Metalcon Metalcon Unique IDentifier
  */
 public class Muid implements Serializable {
 	private static byte sourceID = 0;
+
 	private static int lastCreationTime = 0;
+
 	/**
 	 * The number of MUIDs created at <lastCreationTime>
 	 */
@@ -24,16 +27,27 @@ public class Muid implements Serializable {
 	 */
 	private final long value;
 
-	public static Muid create(final EntityType type) {
+	/**
+	 * creates a new Muid object with a unique ID
+	 * 
+	 * If a Muid with the same type has already been created during the current
+	 * second the ID value will be incremented
+	 * 
+	 * @param type
+	 *            the type of the Muid to be created
+	 * @returna new unique Muid object
+	 */
+	public static Muid create(final MuidType type) {
 		int timestamp = (int) (System.currentTimeMillis() / 1000);
 		short ID = 0;
 		if (timestamp == lastCreationTime) {
+			// We have already created a MUID during the current second
 			ID = (short) currentID.incrementAndGet();
 		}
 		lastCreationTime = timestamp;
 
-		return new Muid(MuidConverter.generateMUID(type, sourceID, timestamp,
-				ID));
+		return new Muid(MuidConverter.calculateMuid(type.getRawIdentifier(),
+				sourceID, timestamp, ID));
 	}
 
 	/**
@@ -44,6 +58,16 @@ public class Muid implements Serializable {
 	 */
 	public Muid(long value) {
 		this.value = value;
+
+		if (!MuidConverter.checkType(getTypeValue())) {
+			throw new MetalconRuntimeException(
+					"Muid Type may not be larger or equal to " + (1 << 9));
+		}
+
+		if (!MuidConverter.checkSource(getSource())) {
+			throw new MetalconRuntimeException(
+					"Muid Source may not be larger or equal to " + (1 << 5));
+		}
 	}
 
 	/**
@@ -65,10 +89,54 @@ public class Muid implements Serializable {
 	}
 
 	/**
-	 * @return type of the entity represented by this MUID
+	 * Returns the type stored within the given MUID
+	 * 
+	 * @param muid
+	 *            The MUID storing the type searched for
+	 * @return The type within the given muid
 	 */
-	public EntityType getEntityType() throws UnknownEntityIdentifierException {
-		return EntityType.parseShort(MuidConverter.getType(value));
+	public short getTypeValue() {
+		return MuidConverter.getType(value);
+	}
+
+	/**
+	 * @return type of the MuidType enum represented by this MUID's type
+	 */
+	public MuidType getMuidType() throws UnknownMuidException {
+		return MuidType.parseShort(MuidConverter.getType(value));
+	}
+
+	/**
+	 * Returns the source that generated the given MUID
+	 * 
+	 * @param muid
+	 *            The MUID storing the source searched for
+	 * @return The source that created the given MUID
+	 */
+	public byte getSource() {
+		return MuidConverter.getSource(value);
+	}
+
+	/**
+	 * Returns the timestamp the given MUID has been created
+	 * 
+	 * @param muid
+	 *            The MUID storing the timestamp searched for
+	 * @return The timestamp the given MUID has been created at
+	 */
+	public int getTimestamp() {
+		return MuidConverter.getTimestamp(value);
+	}
+
+	/**
+	 * Returns the ID stored within the given MUID
+	 * 
+	 * @param muid
+	 *            The MUID storing the ID searched for
+	 * @return The ID within the given muid
+	 */
+	public short getID() {
+		return MuidConverter.getID(value);
 	}
 
 	@Override
@@ -96,5 +164,27 @@ public class Muid implements Serializable {
 		hash = hash * mult + ((Long) value).hashCode();
 
 		return hash;
+	}
+
+	/**
+	 * Returns the path corresponding to the muid. The path consist of 3 folders
+	 * with one hex character as name (0-f). The letters are generated from 4
+	 * consecutive bits in the 32-bit hash of the MUID. The path will be in the
+	 * format [0-9a-f]/[0-9a-f]/[0-9a-f]/
+	 * 
+	 * @return The path that should be used to store data corresponding to this
+	 *         Muid
+	 */
+	public String getStoragePath() {
+		return MuidConverter.getMUIDStoragePath(value);
+	}
+
+	/**
+	 * Returns all characters a MUID path may consist of
+	 * 
+	 * @return All allowed characters
+	 */
+	public static char[] getAllowedFolderNames() {
+		return MuidConverter.getAllowedFolderNames();
 	}
 }
