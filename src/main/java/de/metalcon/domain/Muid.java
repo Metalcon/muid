@@ -16,7 +16,7 @@ public class Muid implements Serializable {
 	/**
 	 * The number of MUIDs created at <lastCreationTime>
 	 */
-	private static AtomicInteger currentID = new AtomicInteger(0);
+	private static AtomicInteger lastCreatedID = new AtomicInteger(0);
 
 	private static final long serialVersionUID = 1L;
 
@@ -42,7 +42,9 @@ public class Muid implements Serializable {
 		short ID = 0;
 		if (timestamp == lastCreationTime) {
 			// We have already created a MUID during the current second
-			ID = (short) currentID.incrementAndGet();
+			ID = (short) lastCreatedID.incrementAndGet();
+		} else {
+			lastCreatedID.set(0);
 		}
 		lastCreationTime = timestamp;
 
