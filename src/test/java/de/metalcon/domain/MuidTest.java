@@ -5,6 +5,7 @@ import junit.framework.Assert;
 import org.junit.Test;
 
 import de.metalcon.exceptions.MetalconRuntimeException;
+import de.metalcon.exceptions.ServiceOverloadedException;
 
 public class MuidTest {
 
@@ -22,6 +23,25 @@ public class MuidTest {
 			new Muid(id);
 			Assert.fail("Muid did not throw an Exception while instanciating with a bad type value");
 		} catch (MetalconRuntimeException e) {
+		}
+
+		/*
+		 * Test if overloading of the Muid service is handled correctly
+		 */
+		try {
+			for (int i = 0; i < MuidConverter.getMaximumMuidID(); i++) {
+				Muid.create(MuidType.BAND);
+			}
+		} catch (ServiceOverloadedException e) {
+			Assert.fail("Creating 0xFFFF MUIDs per second should not throw an exception");
+		}
+
+		try {
+			for (int i = 0; i < 3 * MuidConverter.getMaximumMuidID(); i++) {
+				Muid.create(MuidType.BAND);
+			}
+			Assert.fail("Creating more then 0xFFFF MUIDs per second should throw an exception");
+		} catch (ServiceOverloadedException e) {
 		}
 	}
 }
