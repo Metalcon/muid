@@ -29,4 +29,5 @@ The two byte long ID word within a MUID is used to separate MUIDs created within
 # Usage
 
 To create a new unique MUID you should call something like following:
-	Muid.create(MuidType.BAND);
+
+    Muid.create(MuidType.BAND);
