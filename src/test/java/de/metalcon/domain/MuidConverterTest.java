@@ -22,42 +22,51 @@ import de.metalcon.exceptions.MetalconRuntimeException;
 public class MuidConverterTest {
 
 	@Test
+	public void typeTest() {
+		for (int type = 0; type < 0xFF + 1; type++) {
+			long muid = UidConverter.calculateMuidWithoutChecking((short) 0,
+					(byte) type, 0, (short) 0);
+			System.out.println(muid + "\t" + UidConverter.serialize(muid));
+		}
+	}
+
+	@Test
 	public void test() {
 		Random rng = new Random();
 
 		/*
 		 * Smoketest
 		 */
-		for (short type = 0; type < MuidType.values().length; type++) {
+		for (short type = 0; type < UidType.values().length; type++) {
 			for (int i = 0; i < 100; i++) {
 				final byte source = (byte) Math.abs((rng.nextInt() % (1 << 5)));
 				final int timestamp = rng.nextInt();
 				final short ID = (short) rng.nextInt();
-				long muid = MuidConverter.calculateMuid(type, source,
+				long muid = UidConverter.calculateMuid(type, source,
 						timestamp, ID);
 
-				String muidString = MuidConverter.serialize(muid);
-				assertEquals(muid, MuidConverter.deserialize(muidString));
-				assertEquals(type, MuidConverter.getType(muid));
-				assertEquals(source, MuidConverter.getSource(muid));
-				assertEquals(timestamp, MuidConverter.getTimestamp(muid));
-				assertEquals(ID, MuidConverter.getID(muid));
+				String muidString = UidConverter.serialize(muid);
+				assertEquals(muid, UidConverter.deserialize(muidString));
+				assertEquals(type, UidConverter.getType(muid));
+				assertEquals(source, UidConverter.getSource(muid));
+				assertEquals(timestamp, UidConverter.getTimestamp(muid));
+				assertEquals(ID, UidConverter.getID(muid));
 			}
 		}
 
 		/*
 		 * Test if the Muid type characters are constant
 		 */
-		for (short type = 0; type < MuidType.values().length; type++) {
-			String muidString = MuidConverter.serialize(MuidConverter
+		for (short type = 0; type < UidType.values().length; type++) {
+			String muidString = UidConverter.serialize(UidConverter
 					.calculateMuid(type, (byte) 0, 0, (short) 0));
 			String typeString = muidString.substring(9, 11);
 			for (int i = 0; i < 100; i++) {
-				long muid = MuidConverter.calculateMuid(type,
+				long muid = UidConverter.calculateMuid(type,
 						(byte) Math.abs(rng.nextInt() % (1 << 5)),
 						Math.abs(rng.nextInt()),
 						(short) Math.abs(rng.nextInt()));
-				muidString = MuidConverter.serialize(muid);
+				muidString = UidConverter.serialize(muid);
 				assertEquals(typeString, muidString.substring(9, 11));
 			}
 		}
@@ -66,8 +75,8 @@ public class MuidConverterTest {
 			/*
 			 * Test if we receive an exception if the source ID is too large
 			 */
-			MuidConverter.calculateMuid((short) 0,
-					(byte) (MuidConverter.getLargestAllowedSourceID() + 1), 0,
+			UidConverter.calculateMuid((short) 0,
+					(byte) (UidConverter.getLargestAllowedSourceID() + 1), 0,
 					(short) 0);
 
 			Assert.fail("Muidconverter.calculateMuid did not throw an Exception while running with a bad source ID");
@@ -102,9 +111,9 @@ public class MuidConverterTest {
 
 		start = System.currentTimeMillis();
 		for (int i = 0; i != iterations; i++) {
-			MuidConverter.calculateMuidWithoutChecking(
+			UidConverter.calculateMuidWithoutChecking(
 					(short) (rng.nextInt() % (1 << 9)),
-					(byte) (rng.nextInt() % MuidConverter
+					(byte) (rng.nextInt() % UidConverter
 							.getLargestAllowedSourceID()), rng.nextInt(),
 					(short) rng.nextInt());
 		}
@@ -124,7 +133,7 @@ public class MuidConverterTest {
 
 		start = System.currentTimeMillis();
 		for (int i = 0; i != iterations; i++) {
-			MuidConverter.serialize(Math.abs(rng.nextLong()));
+			UidConverter.serialize(Math.abs(rng.nextLong()));
 		}
 		double timePerSerialization = (System.currentTimeMillis() - start)
 				/ (float) (iterations / 1E6) - randomTime;
@@ -146,7 +155,7 @@ public class MuidConverterTest {
 
 		start = System.currentTimeMillis();
 		for (String muid : muids) {
-			MuidConverter.deserialize(muid);
+			UidConverter.deserialize(muid);
 		}
 		double timePerDeSerialization = (System.currentTimeMillis() - start)
 				/ (float) (iterations / 1E6);
@@ -157,7 +166,7 @@ public class MuidConverterTest {
 	// @Test
 	public void getMUIDStoragePathTest() {
 		for (int i = 0; i < 100; i++) {
-			String path = MuidConverter.getMUIDStoragePath(i);
+			String path = UidConverter.getMUIDStoragePath(i);
 			System.out.println(path);
 		}
 	}

@@ -3,13 +3,11 @@ package de.metalcon.domain;
 import java.io.Serializable;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import de.metalcon.exceptions.MetalconRuntimeException;
-
 /**
  * unique identifier for a Metalcon Metalcon Unique IDentifier
  */
-public class Muid implements Serializable {
-	private static byte sourceID = 0;
+public class Muid extends Uid implements Serializable {
+	private static final long serialVersionUID = 6474090689412027428L;
 
 	private static int lastCreationTime = 0;
 
@@ -17,15 +15,6 @@ public class Muid implements Serializable {
 	 * The number of MUIDs created at <lastCreationTime>
 	 */
 	private static AtomicInteger lastCreatedID = new AtomicInteger(0);
-
-	private static final long serialVersionUID = 1L;
-
-	public static final Muid EMPTY_MUID = new Muid(0);
-
-	/**
-	 * unique identifier
-	 */
-	private final long value;
 
 	/**
 	 * creates a new Muid object with a unique ID
@@ -37,7 +26,7 @@ public class Muid implements Serializable {
 	 *            the type of the Muid to be created
 	 * @returna new unique Muid object
 	 */
-	public static Muid create(final MuidType type) {
+	public static Muid create(final UidType type) {
 		int timestamp = (int) (System.currentTimeMillis() / 1000);
 		short ID = 0;
 		if (timestamp == lastCreationTime) {
@@ -48,7 +37,7 @@ public class Muid implements Serializable {
 		}
 		lastCreationTime = timestamp;
 
-		return new Muid(MuidConverter.calculateMuid(type.getRawIdentifier(),
+		return new Muid(UidConverter.calculateMuid(type.getRawIdentifier(),
 				sourceID, timestamp, ID));
 	}
 
@@ -59,17 +48,7 @@ public class Muid implements Serializable {
 	 *            unique identifier
 	 */
 	public Muid(long value) {
-		this.value = value;
-
-		if (!MuidConverter.checkType(getTypeValue())) {
-			throw new MetalconRuntimeException(
-					"Muid Type may not be larger or equal to " + (1 << 9));
-		}
-
-		if (!MuidConverter.checkSource(getSource())) {
-			throw new MetalconRuntimeException(
-					"Muid Source may not be larger or equal to " + (1 << 5));
-		}
+		super(value);
 	}
 
 	/**
@@ -80,54 +59,7 @@ public class Muid implements Serializable {
 	 *            unique identifier in base64 format
 	 */
 	public Muid(String alphaNumericValue) {
-		value = MuidConverter.deserialize(alphaNumericValue);
-	}
-
-	/**
-	 * @return unique identifier
-	 */
-	public long getValue() {
-		return value;
-	}
-
-	/**
-	 * Returns the type stored within the given MUID
-	 * 
-	 * @param muid
-	 *            The MUID storing the type searched for
-	 * @return The type within the given muid
-	 */
-	public short getTypeValue() {
-		return MuidConverter.getType(value);
-	}
-
-	/**
-	 * @return type of the MuidType enum represented by this MUID's type
-	 */
-	public MuidType getMuidType() throws UnknownMuidException {
-		return MuidType.parseShort(MuidConverter.getType(value));
-	}
-
-	/**
-	 * Returns the source that generated the given MUID
-	 * 
-	 * @param muid
-	 *            The MUID storing the source searched for
-	 * @return The source that created the given MUID
-	 */
-	public byte getSource() {
-		return MuidConverter.getSource(value);
-	}
-
-	/**
-	 * Returns the timestamp the given MUID has been created
-	 * 
-	 * @param muid
-	 *            The MUID storing the timestamp searched for
-	 * @return The timestamp the given MUID has been created at
-	 */
-	public int getTimestamp() {
-		return MuidConverter.getTimestamp(value);
+		super(alphaNumericValue);
 	}
 
 	/**
@@ -138,55 +70,6 @@ public class Muid implements Serializable {
 	 * @return The ID within the given muid
 	 */
 	public short getID() {
-		return MuidConverter.getID(value);
-	}
-
-	@Override
-	public String toString() {
-		return MuidConverter.serialize(value);
-	}
-
-	@Override
-	public boolean equals(Object other) {
-		if (other == this) {
-			return true;
-		}
-		if (other == null || getClass() != other.getClass()) {
-			return false;
-		}
-		Muid o = (Muid) other;
-		return value == o.value;
-	}
-
-	@Override
-	public int hashCode() {
-		int hash = 9823;
-		int mult = 887;
-
-		hash = hash * mult + ((Long) value).hashCode();
-
-		return hash;
-	}
-
-	/**
-	 * Returns the path corresponding to the muid. The path consist of 3 folders
-	 * with one hex character as name (0-f). The letters are generated from 4
-	 * consecutive bits in the 32-bit hash of the MUID. The path will be in the
-	 * format [0-9a-f]/[0-9a-f]/[0-9a-f]/
-	 * 
-	 * @return The path that should be used to store data corresponding to this
-	 *         Muid
-	 */
-	public String getStoragePath() {
-		return MuidConverter.getMUIDStoragePath(value);
-	}
-
-	/**
-	 * Returns all characters a MUID path may consist of
-	 * 
-	 * @return All allowed characters
-	 */
-	public static char[] getAllowedFolderNames() {
-		return MuidConverter.getAllowedFolderNames();
+		return UidConverter.getID(value);
 	}
 }

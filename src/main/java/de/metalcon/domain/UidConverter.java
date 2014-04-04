@@ -12,7 +12,7 @@ import de.metalcon.exceptions.MetalconRuntimeException;
  * @author Jonas Kunze
  * 
  */
-public class MuidConverter {
+public class UidConverter {
 	private final static char[] folderChars = { '0', '1', '2', '3', '4', '5',
 			'6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
 
@@ -52,7 +52,7 @@ public class MuidConverter {
 	 * @return the largest value a Muid type may have
 	 */
 	public static short getLargestAllowedType() {
-		return MuidType.getLargestAllowedType();
+		return UidType.getLargestAllowedType();
 	}
 
 	/**
@@ -93,7 +93,7 @@ public class MuidConverter {
 	 * 
 	 * @param type
 	 *            The type of the MUID to be created
-	 * @param source
+	 * @param sourceID
 	 *            The source of the creator of the MUID (the node running this
 	 *            code)
 	 * @param timestamp
@@ -103,22 +103,61 @@ public class MuidConverter {
 	 * @return The MUID containing all the given information
 	 */
 	public static long calculateMuidWithoutChecking(final short type,
-			final byte source, final int timestamp, final short ID) {
+			final byte sourceID, final int timestamp, final short ID) {
 		return
 		/* Highest bit is 0 for serialization algorithm */
-		0l << (64 - 1)
+		// 0l << (64 - 1) |
+
 		/* Highest 9 bits are type */
-		| (((long) type & 511) << (64 - 9 - 1))
+		(((long) type & 511) << (64 - 1 - 9))
+
 		/*
 		 * Next bit is empty so that the first two alphanumerics only depend on
-		 * type and not also source
+		 * type and not also the source ID
 		 */
+		/* 0l << (64 - 1 - 9 -1) */
+
 		/* Next 5 bits are source */
-		| (((long) source & 31) << (64 - 1 - 9 - 1 - 5))
+		| (((long) sourceID & 31) << (64 - 1 - 9 - 1 - 5))
+
 		/* Next 4 bytes are TS */
 		| ((timestamp & 0xFFFFFFFFL) << (64 - 1 - 9 - 1 - 5 - 32))
+
 		/* Next 2 bytes are ID */
 		| ID & 0xFFFFL;
+	}
+
+	/**
+	 * Generates
+	 * 
+	 * @param sourceID
+	 * @param hostID
+	 * @param fileID
+	 * @return
+	 */
+	public static long calculateUrlMuidWithoutChecking(final byte sourceID,
+			final short hostID, final int fileID) {
+		return
+		/* Highest bit is 0 for serialization algorithm */
+		// 0l << (64 - 1) |
+
+		/* Highest 9 bits are type */
+		(((long) UidType.URL.getRawIdentifier() & 511) << (64 - 1 - 9))
+
+		/*
+		 * Next bit is empty so that the first two alphanumerics only depend on
+		 * type and not also the source ID
+		 */
+		/* 0l << (64 - 1 - 9 -1) */
+
+		/* Next 5 bits are source */
+		| (((long) sourceID & 31) << (64 - 1 - 9 - 1 - 5))
+
+		/* Next 2 bytes are the host */
+		| ((hostID & 0xFFFFL) << (64 - 1 - 9 - 1 - 5 - 16))
+
+		/* Next 4 bytes define the URL within that domain */
+		| fileID & 0xFFFFFFFFL;
 	}
 
 	public static long calculateMuid(final short type, final byte source,

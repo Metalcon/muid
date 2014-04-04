@@ -15,8 +15,8 @@ public class MuidTest {
 			/*
 			 * Test if we receive an exception if the Muid type does not exists
 			 */
-			short badType = (short) (MuidType.values().length + 1);
-			long id = MuidConverter.calculateMuidWithoutChecking(badType,
+			short badType = (short) (UidType.values().length + 1);
+			long id = UidConverter.calculateMuidWithoutChecking(badType,
 					(byte) 0, 0, (short) 0);
 
 			new Muid(id);

@@ -3,7 +3,7 @@ package de.metalcon.domain;
 import java.util.TreeMap;
 
 /**
- * enumeration of all muid types<br>
+ * enumeration of all Uid types<br>
  * <br>
  * <ul>
  * <li>band</li>
@@ -16,9 +16,10 @@ import java.util.TreeMap;
  * <li>track</li>
  * <li>user</li>
  * <li>venue</li>
+ * <li>url</li>
  * </ul>
  */
-public enum MuidType {
+public enum UidType {
 	/**
 	 * band linked to a genre
 	 */
@@ -67,24 +68,23 @@ public enum MuidType {
 	/**
 	 * venue located in a city
 	 */
-	VENUE("venue", (short) 9);
+	VENUE("venue", (short) 9),
 
 	/**
-	 * Array to map raw identifier IDs to enums
+	 * external URL
 	 */
-	static final MuidType[] allTypes = { BAND, CITY, EVENT, GENRE, INSTRUMENT,
-			RECORD, TOUR, TRACK, USER, VENUE };
+	URL("url", (short) 10);
 
 	/**
 	 * Map to map identy type names (strings) to enums
 	 */
-	static TreeMap<String, MuidType> allTypesByString = new TreeMap<String, MuidType>();
+	static TreeMap<String, UidType> allTypesByString = new TreeMap<String, UidType>();
 
 	/**
 	 * Fill allTypesByString
 	 */
 	static {
-		for (MuidType type : MuidType.values()) {
+		for (UidType type : UidType.values()) {
 			allTypesByString.put(type.getIdentifier(), type);
 		}
 	}
@@ -105,7 +105,7 @@ public enum MuidType {
 	 * @param identifier
 	 *            identifier of the Muid type
 	 */
-	private MuidType(final String identifier, final short rawValue) {
+	private UidType(final String identifier, final short rawValue) {
 		this.identifier = identifier;
 		this.rawValue = rawValue;
 	}
@@ -136,7 +136,7 @@ public enum MuidType {
 	 * @return Muid type having the identifier passed<br>
 	 *         <b>null</b> if no Muid type has such identifier
 	 */
-	public static MuidType parseString(final String identifier) {
+	public static UidType parseString(final String identifier) {
 		return (allTypesByString.get(identifier));
 	}
 
@@ -150,12 +150,12 @@ public enum MuidType {
 	 * @throws UnknownMuidException
 	 *             thrown if the given identifier is invalid
 	 */
-	public static MuidType parseShort(final short identifier)
+	public static UidType parseShort(final short identifier)
 			throws UnknownMuidException {
-		if (identifier > allTypes.length) {
+		if (identifier > UidType.values().length) {
 			throw new UnknownMuidException(identifier);
 		}
-		return allTypes[identifier];
+		return UidType.values()[identifier];
 	}
 
 	/**
@@ -163,6 +163,6 @@ public enum MuidType {
 	 * @return the largest muid type value allowed
 	 */
 	public static short getLargestAllowedType() {
-		return (short) MuidType.values().length;
+		return (short) UidType.values().length;
 	}
 }
