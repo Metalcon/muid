@@ -13,6 +13,7 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
+import de.metalcon.domain.helper.UidConverter;
 import de.metalcon.exceptions.MetalconRuntimeException;
 
 /**
@@ -42,15 +43,15 @@ public class MuidConverterTest {
 				final byte source = (byte) Math.abs((rng.nextInt() % (1 << 5)));
 				final int timestamp = rng.nextInt();
 				final short ID = (short) rng.nextInt();
-				long muid = UidConverter.calculateMuid(type, source,
-						timestamp, ID);
+				long muid = UidConverter.calculateMuid(type, source, timestamp,
+						ID);
 
 				String muidString = UidConverter.serialize(muid);
 				assertEquals(muid, UidConverter.deserialize(muidString));
 				assertEquals(type, UidConverter.getType(muid));
 				assertEquals(source, UidConverter.getSource(muid));
 				assertEquals(timestamp, UidConverter.getTimestamp(muid));
-				assertEquals(ID, UidConverter.getID(muid));
+				assertEquals(ID, UidConverter.getFineTime(muid));
 			}
 		}
 
@@ -166,7 +167,7 @@ public class MuidConverterTest {
 	// @Test
 	public void getMUIDStoragePathTest() {
 		for (int i = 0; i < 100; i++) {
-			String path = UidConverter.getMUIDStoragePath(i);
+			String path = UidConverter.getMuidStoragePath(i);
 			System.out.println(path);
 		}
 	}

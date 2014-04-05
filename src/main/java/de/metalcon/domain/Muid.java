@@ -3,8 +3,12 @@ package de.metalcon.domain;
 import java.io.Serializable;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import de.metalcon.domain.helper.UidConverter;
+
 /**
- * unique identifier for a Metalcon Metalcon Unique IDentifier
+ * unique identifier for a Metalcon Metalcon Unique IDentifier. Additional to
+ * type and sourceID (@see {@link Uid}) it stores a timestamp (time of creation)
+ * and a fine time (number of created Uid within the timestamp second)
  */
 public class Muid extends Uid implements Serializable {
 	private static final long serialVersionUID = 6474090689412027428L;
@@ -63,13 +67,25 @@ public class Muid extends Uid implements Serializable {
 	}
 
 	/**
-	 * Returns the ID stored within the given MUID
+	 * Returns the timestamp this Muid has been created
 	 * 
-	 * @param muid
-	 *            The MUID storing the ID searched for
-	 * @return The ID within the given muid
+	 * @return The timestamp this Muid has been created
 	 */
-	public short getID() {
-		return UidConverter.getID(value);
+	public int getTimestamp() {
+		if (getTypeValue() == UidType.URL.getRawIdentifier()) {
+
+		}
+
+		return UidConverter.getTimestamp(value);
+	}
+
+	/**
+	 * Returns the fine time of this Muid (the number of created Muid within the
+	 * timestamp second)
+	 * 
+	 * @return The fine time of this Muid
+	 */
+	public short getFineTime() {
+		return UidConverter.getFineTime(value);
 	}
 }

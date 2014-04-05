@@ -1,9 +1,10 @@
-package de.metalcon.domain;
+package de.metalcon.domain.helper;
 
+import de.metalcon.domain.UidType;
 import de.metalcon.exceptions.MetalconRuntimeException;
 
 /**
- * This class defines the 64 bit MUIDS and can generate, serialize and deserialize them 
+ * This class defines the 64 bit MuidS and can generate, serialize and deserialize them 
  * 
  * This code is GPLv3
  */
@@ -35,7 +36,7 @@ public class UidConverter {
 		}
 	}
 
-	private final static short MUID_LENGTH = 11;
+	private final static short Muid_LENGTH = 11;
 
 	/**
 	 * 
@@ -74,7 +75,7 @@ public class UidConverter {
 	}
 
 	/**
-	 * Generates a MUID containing the given information. The format of the MUID
+	 * Generates a Muid containing the given information. The format of the Muid
 	 * is following (in big endianess):
 	 * 
 	 * Bit 0 is always 0 to force positive numbers for serialization
@@ -83,7 +84,7 @@ public class UidConverter {
 	 * Bits 1-9 define the Muid type (9 bit - 0-511 - 2 chars)
 	 * 
 	 * Bit 10 is always 0 to enforce the first two tokens in the alphanumeric
-	 * version to be equal for each MUID with the same type
+	 * version to be equal for each Muid with the same type
 	 * 
 	 * Bits 11-15 define the Source (5 bit)
 	 * 
@@ -92,15 +93,15 @@ public class UidConverter {
 	 * Bits 48-63 define the ID (16 bit)
 	 * 
 	 * @param type
-	 *            The type of the MUID to be created
+	 *            The type of the Muid to be created
 	 * @param sourceID
-	 *            The source of the creator of the MUID (the node running this
+	 *            The source of the creator of the Muid (the node running this
 	 *            code)
 	 * @param timestamp
-	 *            The timestamp to be stored in the MUID (creation time)
+	 *            The timestamp to be stored in the Muid (creation time)
 	 * @param ID
 	 *            The relative ID within the given timestamp, source and type.
-	 * @return The MUID containing all the given information
+	 * @return The Muid containing all the given information
 	 */
 	public static long calculateMuidWithoutChecking(final short type,
 			final byte sourceID, final int timestamp, final short ID) {
@@ -128,15 +129,37 @@ public class UidConverter {
 	}
 
 	/**
-	 * Generates
+	 * Generates a UrlID containing the given information. The format of the ID
+	 * is following (in big endianess):
 	 * 
+	 * Bit 0 is always 0 to force positive numbers for serialization
+	 * implementation
+	 * 
+	 * Bits 1-9 define the UID type (9 bit - 0-511 - 2 chars) which is
+	 * UidType.URL
+	 * 
+	 * Bit 10 is always 0 to enforce the first two tokens in the alphanumeric
+	 * version to be equal for each Muid with the same type
+	 * 
+	 * Bits 11-15 are not yet used and therefore also 0
+	 * 
+	 * Bits 16-31 define the domain ID (16 bit)
+	 * 
+	 * Bits 32-63 define file ID (32 bit)
+	 * 
+	 * @param type
+	 *            The type of the Muid to be created
 	 * @param sourceID
-	 * @param hostID
-	 * @param fileID
-	 * @return
+	 *            The source of the creator of the Muid (the node running this
+	 *            code)
+	 * @param timestamp
+	 *            The timestamp to be stored in the Muid (creation time)
+	 * @param ID
+	 *            The relative ID within the given timestamp, source and type.
+	 * @return The Muid containing all the given information
 	 */
-	public static long calculateUrlMuidWithoutChecking(final byte sourceID,
-			final short hostID, final int fileID) {
+	public static long calculateUrlIdWithoutChecking(final short domainID,
+			final int fileID) {
 		return
 		/* Highest bit is 0 for serialization algorithm */
 		// 0l << (64 - 1) |
@@ -150,13 +173,13 @@ public class UidConverter {
 		 */
 		/* 0l << (64 - 1 - 9 -1) */
 
-		/* Next 5 bits are source */
-		| (((long) sourceID & 31) << (64 - 1 - 9 - 1 - 5))
+		/* Next 5 bits are 0 (reserved) */
+		| (((long) 0 & 31) << (64 - 1 - 9 - 1 - 5))
 
-		/* Next 2 bytes are the host */
-		| ((hostID & 0xFFFFL) << (64 - 1 - 9 - 1 - 5 - 16))
+		/* Next 2 bytes are the domain */
+		| ((domainID & 0xFFFFL) << (64 - 1 - 9 - 1 - 5 - 16))
 
-		/* Next 4 bytes define the URL within that domain */
+		/* Next 4 bytes define the path within that domain */
 		| fileID & 0xFFFFFFFFL;
 	}
 
@@ -176,10 +199,10 @@ public class UidConverter {
 	}
 
 	/**
-	 * Returns the type stored within the given MUID
+	 * Returns the type stored within the given Muid
 	 * 
 	 * @param muid
-	 *            The MUID storing the type searched for
+	 *            The Muid storing the type searched for
 	 * @return The type within the given muid
 	 */
 	public static short getType(final long muid) {
@@ -187,49 +210,70 @@ public class UidConverter {
 	}
 
 	/**
-	 * Returns the source that generated the given MUID
+	 * Returns the source that generated the given Muid
 	 * 
 	 * @param muid
-	 *            The MUID storing the source searched for
-	 * @return The source that created the given MUID
+	 *            The Muid storing the source searched for
+	 * @return The source that created the given Muid
 	 */
 	public static byte getSource(final long muid) {
 		return (byte) ((muid >>> (64 - 1 - 9 - 1 - 5)) & 31);
 	}
 
 	/**
-	 * Returns the timestamp the given MUID has been created
+	 * Returns the timestamp the given Muid has been created
 	 * 
 	 * @param muid
-	 *            The MUID storing the timestamp searched for
-	 * @return The timestamp the given MUID has been created at
+	 *            The Muid storing the timestamp searched for
+	 * @return The timestamp the given Muid has been created at
 	 */
 	public static int getTimestamp(final long muid) {
 		return (int) ((muid >>> (64 - 1 - 9 - 1 - 5 - 32)) & 0xFFFFFFFFL);
 	}
 
 	/**
-	 * Returns the ID stored within the given MUID
+	 * Returns the ID stored within the given Muid
 	 * 
 	 * @param muid
-	 *            The MUID storing the ID searched for
-	 * @return The ID within the given muid
+	 *            The Muid storing the ID searched for
+	 * @return The ID within the given Muid
 	 */
-	public static short getID(final long muid) {
+	public static short getFineTime(final long muid) {
 		return (short) (muid & 0xFFFFL);
 	}
 
 	/**
-	 * Parses the given MUID to an alphanumeric string
+	 * Returns the domainID the given UrlID has been created
 	 * 
 	 * @param muid
-	 *            The MUID to be parsed
-	 * @return The alphanumeric string corresponding to the given MUID
+	 *            The UrlID storing the domainID searched for
+	 * @return The domainID of the given UrlID
+	 */
+	public static short getDomainID(final long urlID) {
+		return (short) ((urlID >>> (64 - 1 - 9 - 1 - 5 - 16)) & 0xFFFFL);
+	}
+
+	/**
+	 * Returns the fileID stored within the given UrlID
+	 * 
+	 * @param muid
+	 *            The UrlID storing the fileID searched for
+	 * @return The fileID of the given UrlID
+	 */
+	public static int getFileID(final long urlID) {
+		return (int) (urlID & 0xFFFFFFFFL);
+	}
+
+	/**
+	 * Parses the given Muid to an alphanumeric string
+	 * 
+	 * @param muid
+	 *            The Muid to be parsed
+	 * @return The alphanumeric string corresponding to the given Muid
 	 */
 	public static String serialize(long muid) {
-
 		StringBuilder string = new StringBuilder(13);
-		for (int i = 0; i != MUID_LENGTH; ++i) {
+		for (int i = 0; i != Muid_LENGTH; ++i) {
 			int rest = (int) (muid % base);
 			string.append(DIGITS[rest]);
 			muid = muid / base;
@@ -238,15 +282,14 @@ public class UidConverter {
 	}
 
 	/**
-	 * Parses the given MUID in alphanumeric string format to it's corresponding
+	 * Parses the given Muid in alphanumeric string format to it's corresponding
 	 * long version
 	 * 
 	 * @param idString
-	 *            The alphanumeric string describing the MUID to be parsed
-	 * @return The MUID in it's long format
+	 *            The alphanumeric string describing the Muid to be parsed
+	 * @return The Muid in it's long format
 	 */
 	public static long deserialize(final String idString) {
-		// return new BigInteger(idString, base).longValue();
 		long tmp = 0;
 		for (int i = idString.length() - 1; i >= 0; --i) {
 			tmp *= base;
@@ -260,7 +303,7 @@ public class UidConverter {
 	}
 
 	/**
-	 * Returns all characters a MUID path may consist of
+	 * Returns all characters a Muid path may consist of
 	 * 
 	 * @return All allowed characters
 	 */
@@ -270,25 +313,25 @@ public class UidConverter {
 
 	/**
 	 * 
-	 * @return The number for characters an alphanumeric version of any MUID
+	 * @return The number for characters an alphanumeric version of any Muid
 	 *         consist of
 	 */
-	public static short getMUIDLength() {
-		return MUID_LENGTH;
+	public static short getMuidLength() {
+		return Muid_LENGTH;
 	}
 
 	/**
 	 * Returns the path corresponding to the given muid. The path consist of 3
 	 * folders with one hex character as name (0-f). The letters are generated
-	 * from 4 consecutive bits in the 32-bit hash of the MUID. The path will be
+	 * from 4 consecutive bits in the 32-bit hash of the Muid. The path will be
 	 * in the format [0-9a-f]/[0-9a-f]/[0-9a-f]/
 	 * 
 	 * @param muid
-	 *            The MUID to be taken for the path generation
+	 *            The Muid to be taken for the path generation
 	 * @return The path that should be used to store data coresponding to the
-	 *         given MUID
+	 *         given Muid
 	 */
-	public static String getMUIDStoragePath(final long muid) {
+	public static String getMuidStoragePath(final long muid) {
 		/*
 		 * Split the muid into shorts and xor them
 		 */

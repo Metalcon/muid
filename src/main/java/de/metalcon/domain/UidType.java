@@ -2,6 +2,8 @@ package de.metalcon.domain;
 
 import java.util.TreeMap;
 
+import de.metalcon.domain.helper.UnknownMuidException;
+
 /**
  * enumeration of all Uid types<br>
  * <br>

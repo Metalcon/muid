@@ -4,6 +4,7 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
+import de.metalcon.domain.helper.UidConverter;
 import de.metalcon.exceptions.MetalconRuntimeException;
 
 public class MuidTest {

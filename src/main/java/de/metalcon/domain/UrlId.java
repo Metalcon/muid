@@ -1,12 +1,9 @@
 package de.metalcon.domain;
 
 import java.net.MalformedURLException;
-import java.net.URL;
 
-class HostAndFile {
-	public String host;
-	public String file;
-}
+import de.metalcon.domain.helper.UidConverter;
+import de.metalcon.domain.storage.UrlStore;
 
 /**
  * unique identifier for a Metalcon Metalcon Unique IDentifier
@@ -21,38 +18,14 @@ public class UrlId extends Uid {
 	 * If a Muid with the same type has already been created during the current
 	 * second the ID value will be incremented
 	 * 
-	 * @param type
-	 *            the type of the Muid to be created
+	 * @param url
+	 *            the URL to be stored. It must be of the full URL including the
+	 *            protocol/scheme
 	 * @throws MalformedURLException
 	 * @returna new unique Muid object
 	 */
-	public static Muid create(final String url) throws MalformedURLException {
-		HostAndFile haf = getHostAndFileFromURL(url);
-
-		// return new Muid(UidConverter.calculateMuid(
-		// UidType.URL.getRawIdentifier(), sourceID, timestamp, ID));
-		return null;
-	}
-
-	/**
-	 * 
-	 * @param url
-	 * @param host
-	 * @param file
-	 * @throws MalformedURLException
-	 */
-	public static HostAndFile getHostAndFileFromURL(final String url)
-			throws MalformedURLException {
-		URL uri = new URL(url);
-
-		HostAndFile haf = new HostAndFile();
-		haf.host = uri.getHost();
-		if (uri.getRef() != null) {
-			haf.file = uri.getFile() + "#" + uri.getRef();
-		} else {
-			haf.file = uri.getFile();
-		}
-		return haf;
+	public static UrlId create(final String url) throws MalformedURLException {
+		return new UrlId(UrlStore.getOrCreateID(url));
 	}
 
 	/**
@@ -74,5 +47,27 @@ public class UrlId extends Uid {
 	 */
 	public UrlId(String alphaNumericValue) {
 		super(alphaNumericValue);
+	}
+
+	/**
+	 * @return The full URL string
+	 */
+	public String getUrl() {
+		return UrlStore.getUrl(getValue());
+	}
+
+	/**
+	 * @return The ID identifying the domain of this URL
+	 */
+	public short getDomainId() {
+		return UidConverter.getDomainID(getValue());
+	}
+
+	/**
+	 * @return The ID identifying the file of all files within the domain of
+	 *         this URL
+	 */
+	public int getFileId() {
+		return UidConverter.getFileID(getValue());
 	}
 }

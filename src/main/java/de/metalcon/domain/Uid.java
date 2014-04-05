@@ -2,10 +2,13 @@ package de.metalcon.domain;
 
 import java.io.Serializable;
 
+import de.metalcon.domain.helper.UidConverter;
+import de.metalcon.domain.helper.UnknownMuidException;
 import de.metalcon.exceptions.MetalconRuntimeException;
 
 /**
- * unique identifier for anything
+ * unique identifier for anything. It stores a type (Uidtype) and as sourceID
+ * (the node which created this ID)
  */
 public class Uid implements Serializable {
 	private static final long serialVersionUID = 4896224060197683465L;
@@ -72,23 +75,8 @@ public class Uid implements Serializable {
 	 *            The MUID storing the source searched for
 	 * @return The source that created the given MUID
 	 */
-	public byte getSource() {
+	public byte getSourceID() {
 		return UidConverter.getSource(value);
-	}
-
-	/**
-	 * Returns the timestamp the given MUID has been created
-	 * 
-	 * @param muid
-	 *            The MUID storing the timestamp searched for
-	 * @return The timestamp the given MUID has been created at
-	 */
-	public int getTimestamp() {
-		if (getTypeValue() == UidType.URL.getRawIdentifier()) {
-
-		}
-
-		return UidConverter.getTimestamp(value);
 	}
 
 	@Override
@@ -104,7 +92,7 @@ public class Uid implements Serializable {
 		if (other == null || getClass() != other.getClass()) {
 			return false;
 		}
-		Muid o = (Muid) other;
+		Uid o = (Uid) other;
 		return value == o.value;
 	}
 
@@ -128,7 +116,7 @@ public class Uid implements Serializable {
 	 *         Muid
 	 */
 	public String getStoragePath() {
-		return UidConverter.getMUIDStoragePath(value);
+		return UidConverter.getMuidStoragePath(value);
 	}
 
 	/**

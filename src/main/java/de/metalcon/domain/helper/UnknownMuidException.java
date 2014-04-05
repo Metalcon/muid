@@ -1,4 +1,4 @@
-package de.metalcon.domain;
+package de.metalcon.domain.helper;
 
 import de.metalcon.exceptions.MetalconRuntimeException;
 
