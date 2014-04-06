@@ -19,8 +19,19 @@ public class UrlId extends Uid {
 	 *            the unique ID of the new UrlID
 	 * @returna New unique Muid object
 	 */
-	public static UrlId create(final long id) {
+	public static UrlId createFromID(final long id) {
 		return new UrlId(id);
+	}
+
+	/**
+	 * Creates a new Muid object with the given unique ID
+	 * 
+	 * @param id
+	 *            the unique ID of the new UrlID
+	 * @returna New unique Muid object
+	 */
+	public static UrlId createFromID(String alphaNumericValue) {
+		return createFromID(UidConverter.deserialize(alphaNumericValue));
 	}
 
 	/**
@@ -45,19 +56,8 @@ public class UrlId extends Uid {
 	 * @param value
 	 *            unique identifier
 	 */
-	public UrlId(long value) {
+	private UrlId(long value) {
 		super(value);
-	}
-
-	/**
-	 * Create a new Euid instance with an already given value in alphanumeric
-	 * form
-	 * 
-	 * @param alphaNumericValue
-	 *            unique identifier in base64 format
-	 */
-	public UrlId(String alphaNumericValue) {
-		super(alphaNumericValue);
 	}
 
 	/**

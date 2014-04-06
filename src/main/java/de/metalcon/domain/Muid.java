@@ -75,11 +75,22 @@ public class Muid extends Uid implements Serializable {
 	 * @param id
 	 * @return
 	 */
-	public static Muid create(final long id) {
+	public static Muid createFromID(final long id) {
 		if (UidConverter.getTimestamp(id) == 0) {
 			return emptyMuids.get(UidType.parseId(id));
 		}
 		return new Muid(id);
+	}
+
+	/**
+	 * create a new Muid instance with an already given value in alphanumeric
+	 * form
+	 * 
+	 * @param alphaNumericValue
+	 *            unique identifier in base64 format
+	 */
+	public static Muid createFromID(String alphaNumericValue) {
+		return createFromID(UidConverter.deserialize(alphaNumericValue));
 	}
 
 	/**
@@ -130,19 +141,8 @@ public class Muid extends Uid implements Serializable {
 	 * @param value
 	 *            unique identifier
 	 */
-	public Muid(long value) {
+	private Muid(long value) {
 		super(value);
-	}
-
-	/**
-	 * create a new Muid instance with an already given value in alphanumeric
-	 * form
-	 * 
-	 * @param alphaNumericValue
-	 *            unique identifier in base64 format
-	 */
-	public Muid(String alphaNumericValue) {
-		super(alphaNumericValue);
 	}
 
 	/**

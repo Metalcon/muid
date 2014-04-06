@@ -28,11 +28,24 @@ public class Uid implements Serializable {
 	 * @return A new UrlID object if the type of l is Url, a new Muid object
 	 *         otherwise
 	 */
-	public static Uid create(final long id) {
+	public static Uid createFromID(final long id) {
 		if (UidConverter.getType(id) == UidType.URL.getRawIdentifier()) {
-			return UrlId.create(id);
+			return UrlId.createFromID(id);
 		}
-		return Muid.create(id);
+		return Muid.createFromID(id);
+	}
+
+	/**
+	 * Creates a new Muid or UrlID object with the given ID in alpha numeric
+	 * format as value
+	 * 
+	 * @param alphaNumericValue
+	 *            The value of the created UrlID object
+	 * @return A new UrlID object if the type of l is Url, a new Muid object
+	 *         otherwise
+	 */
+	public static Uid createFromID(final String alphaNumericValue) {
+		return createFromID(UidConverter.deserialize(alphaNumericValue));
 	}
 
 	/**
@@ -41,24 +54,13 @@ public class Uid implements Serializable {
 	 * @param value
 	 *            unique identifier
 	 */
-	public Uid(long value) {
+	protected Uid(long value) {
 		this.value = value;
 
 		if (!UidConverter.checkType(getTypeValue())) {
 			throw new MetalconRuntimeException(
 					"Muid Type may not be larger or equal to " + (1 << 9));
 		}
-	}
-
-	/**
-	 * create a new Muid instance with an already given value in alphanumeric
-	 * form
-	 * 
-	 * @param alphaNumericValue
-	 *            unique identifier in base64 format
-	 */
-	public Uid(String alphaNumericValue) {
-		this(UidConverter.deserialize(alphaNumericValue));
 	}
 
 	/**
