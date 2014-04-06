@@ -198,6 +198,10 @@ public class UidConverter {
 		return calculateMuidWithoutChecking(type, source, timestamp, ID);
 	}
 
+	public static int getMaximumMuidID() {
+		return 0xFFFF;
+	}
+
 	/**
 	 * Returns the type stored within the given Muid
 	 * 

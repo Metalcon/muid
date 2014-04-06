@@ -6,6 +6,7 @@ import org.junit.Test;
 
 import de.metalcon.domain.helper.UidConverter;
 import de.metalcon.exceptions.MetalconRuntimeException;
+import de.metalcon.exceptions.ServiceOverloadedException;
 
 public class MuidTest {
 
@@ -28,5 +29,24 @@ public class MuidTest {
 		Muid id = Muid.create(UidConverter.calculateMuidWithoutChecking(
 				UidType.RECORD.getRawIdentifier(), (byte) 0, 0, (short) 0));
 		Assert.assertEquals(id, Muid.EMPTY_RECORD_MUID);
+
+		/*
+		 * Test if overloading of the Muid service is handled correctly
+		 */
+		try {
+			for (int i = 0; i < UidConverter.getMaximumMuidID(); i++) {
+				Muid.create(UidType.BAND);
+			}
+		} catch (ServiceOverloadedException e) {
+			Assert.fail("Creating 0xFFFF MUIDs per second should not throw an exception");
+		}
+
+		try {
+			for (int i = 0; i < 3 * UidConverter.getMaximumMuidID(); i++) {
+				Muid.create(UidType.BAND);
+			}
+			Assert.fail("Creating more then 0xFFFF MUIDs per second should throw an exception");
+		} catch (ServiceOverloadedException e) {
+		}
 	}
 }

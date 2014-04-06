@@ -7,6 +7,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import de.metalcon.domain.helper.UidConverter;
 import de.metalcon.exceptions.MetalconRuntimeException;
+import de.metalcon.exceptions.ServiceOverloadedException;
 
 /**
  * unique identifier for a Metalcon Metalcon Unique IDentifier. Additional to
@@ -88,24 +89,36 @@ public class Muid extends Uid implements Serializable {
 	 * second the ID value will be incremented
 	 * 
 	 * @param type
-	 *            the type of the Muid to be created
-	 * @returna new unique Muid object
+	 *            The type of the Muid to be created
+	 * @throws ServiceOverloadedException
+	 *             Tto reduce the load you should not try to create a MUID again
+	 *             if this exception has been thrown!
+	 * @return A new unique Muid object
 	 */
-	public static Muid create(final UidType type) {
+	public static Muid create(final UidType type)
+			throws ServiceOverloadedException {
 		if (type == UidType.URL) {
 			throw new MetalconRuntimeException(
-					"Do not try to create a Muid with the URL type! Use UrlID.create instead.");
+					"Tried to create a Muid object with a URL type. Please use UrlID instead.");
 		}
 
 		int timestamp = (int) (System.currentTimeMillis() / 1000);
 		short ID = 0;
 		if (timestamp == lastCreationTime) {
 			// We have already created a MUID during the current second
+			if (lastCreatedID.intValue() == UidConverter.getMaximumMuidID()) {
+				// We've reached the Muid per second limit
+				throw new ServiceOverloadedException(
+						"Alreay created more then "
+								+ UidConverter.getMaximumMuidID()
+								+ " during the current second");
+			}
+
 			ID = (short) lastCreatedID.incrementAndGet();
 		} else {
 			lastCreatedID.set(0);
+			lastCreationTime = timestamp;
 		}
-		lastCreationTime = timestamp;
 
 		return new Muid(UidConverter.calculateMuid(type.getRawIdentifier(),
 				sourceID, timestamp, ID));
