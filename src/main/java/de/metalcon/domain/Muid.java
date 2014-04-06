@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import de.metalcon.domain.helper.UidConverter;
+import de.metalcon.exceptions.MetalconRuntimeException;
 
 /**
  * unique identifier for a Metalcon Metalcon Unique IDentifier. Additional to
@@ -14,6 +15,8 @@ public class Muid extends Uid implements Serializable {
 	private static final long serialVersionUID = 6474090689412027428L;
 
 	private static int lastCreationTime = 0;
+
+	public static Muid EMPTY_MUID = new Muid(0);
 
 	/**
 	 * The number of MUIDs created at <lastCreationTime>
@@ -31,6 +34,11 @@ public class Muid extends Uid implements Serializable {
 	 * @returna new unique Muid object
 	 */
 	public static Muid create(final UidType type) {
+		if (type == UidType.URL) {
+			throw new MetalconRuntimeException(
+					"Do not try to instantiate a Muid with the URL type. Use UrlID.create instead!");
+		}
+
 		int timestamp = (int) (System.currentTimeMillis() / 1000);
 		short ID = 0;
 		if (timestamp == lastCreationTime) {
