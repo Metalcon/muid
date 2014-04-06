@@ -2,6 +2,7 @@ package de.metalcon.domain;
 
 import java.util.TreeMap;
 
+import de.metalcon.domain.helper.UidConverter;
 import de.metalcon.domain.helper.UnknownMuidException;
 
 /**
@@ -143,6 +144,7 @@ public enum UidType {
 	}
 
 	/**
+	 * Get a UidType by the type identifying number
 	 * 
 	 * @param identifier
 	 *            the number identifying the type.
@@ -154,6 +156,23 @@ public enum UidType {
 	 */
 	public static UidType parseShort(final short identifier)
 			throws UnknownMuidException {
+		if (identifier > UidType.values().length) {
+			throw new UnknownMuidException(identifier);
+		}
+		return UidType.values()[identifier];
+	}
+
+	/**
+	 * Get a UidType by a Muid or UrlID
+	 * 
+	 * @param ID
+	 *            The UID (Muid or UrlID)
+	 * @return The enum identifying the Muid type corresponding to the given UID
+	 * @throws UnknownMuidException
+	 *             Thrown if the given ID is invalid
+	 */
+	public static UidType parseId(final long ID) throws UnknownMuidException {
+		short identifier = UidConverter.getType(ID);
 		if (identifier > UidType.values().length) {
 			throw new UnknownMuidException(identifier);
 		}

@@ -24,5 +24,9 @@ public class MuidTest {
 			Assert.fail("Muid did not throw an Exception while instanciating with a bad type value");
 		} catch (MetalconRuntimeException e) {
 		}
+
+		Muid id = Muid.create(UidConverter.calculateMuidWithoutChecking(
+				UidType.RECORD.getRawIdentifier(), (byte) 0, 0, (short) 0));
+		Assert.assertEquals(id, Muid.EMPTY_RECORD_MUID);
 	}
 }

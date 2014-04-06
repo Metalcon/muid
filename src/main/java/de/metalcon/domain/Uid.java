@@ -21,6 +21,21 @@ public class Uid implements Serializable {
 	protected final long value;
 
 	/**
+	 * Creates a new Muid or UrlID object with the given long as value
+	 * 
+	 * @param id
+	 *            The value of the created UrlID object
+	 * @return A new UrlID object if the type of l is Url, a new Muid object
+	 *         otherwise
+	 */
+	public static Uid create(final long id) {
+		if (UidConverter.getType(id) == UidType.URL.getRawIdentifier()) {
+			return UrlId.create(id);
+		}
+		return Muid.create(id);
+	}
+
+	/**
 	 * create new Muid instance with an already given value
 	 * 
 	 * @param value

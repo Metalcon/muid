@@ -1,6 +1,8 @@
 package de.metalcon.domain;
 
 import java.io.Serializable;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import de.metalcon.domain.helper.UidConverter;
@@ -16,7 +18,51 @@ public class Muid extends Uid implements Serializable {
 
 	private static int lastCreationTime = 0;
 
-	public static Muid EMPTY_MUID = new Muid(0);
+	public static final Muid EMPTY_BAND_MUID = new Muid(
+			UidConverter.calculateMuid(UidType.BAND.getRawIdentifier(),
+					(byte) 0, 0, (short) 0));
+	public static final Muid EMPTY_CITY_MUID = new Muid(
+			UidConverter.calculateMuid(UidType.CITY.getRawIdentifier(),
+					(byte) 0, 0, (short) 0));
+	public static final Muid EMPTY_EVENT_MUID = new Muid(
+			UidConverter.calculateMuid(UidType.EVENT.getRawIdentifier(),
+					(byte) 0, 0, (short) 0));
+	public static final Muid EMPTY_GENRE_MUID = new Muid(
+			UidConverter.calculateMuid(UidType.GENRE.getRawIdentifier(),
+					(byte) 0, 0, (short) 0));
+	public static final Muid EMPTY_INSTRUMENT_MUID = new Muid(
+			UidConverter.calculateMuid(UidType.INSTRUMENT.getRawIdentifier(),
+					(byte) 0, 0, (short) 0));
+	public static final Muid EMPTY_RECORD_MUID = new Muid(
+			UidConverter.calculateMuid(UidType.RECORD.getRawIdentifier(),
+					(byte) 0, 0, (short) 0));
+	public static final Muid EMPTY_TOUR_MUID = new Muid(
+			UidConverter.calculateMuid(UidType.TOUR.getRawIdentifier(),
+					(byte) 0, 0, (short) 0));
+	public static final Muid EMPTY_TRACK_MUID = new Muid(
+			UidConverter.calculateMuid(UidType.TRACK.getRawIdentifier(),
+					(byte) 0, 0, (short) 0));
+	public static final Muid EMPTY_USER_MUID = new Muid(
+			UidConverter.calculateMuid(UidType.USER.getRawIdentifier(),
+					(byte) 0, 0, (short) 0));
+	public static final Muid EMPTY_VENUE_MUID = new Muid(
+			UidConverter.calculateMuid(UidType.VENUE.getRawIdentifier(),
+					(byte) 0, 0, (short) 0));
+
+	private static Map<UidType, Muid> emptyMuids;
+	static {
+		emptyMuids = new TreeMap<UidType, Muid>();
+		emptyMuids.put(UidType.BAND, EMPTY_BAND_MUID);
+		emptyMuids.put(UidType.CITY, EMPTY_CITY_MUID);
+		emptyMuids.put(UidType.EVENT, EMPTY_EVENT_MUID);
+		emptyMuids.put(UidType.GENRE, EMPTY_GENRE_MUID);
+		emptyMuids.put(UidType.INSTRUMENT, EMPTY_INSTRUMENT_MUID);
+		emptyMuids.put(UidType.RECORD, EMPTY_RECORD_MUID);
+		emptyMuids.put(UidType.TOUR, EMPTY_TOUR_MUID);
+		emptyMuids.put(UidType.TRACK, EMPTY_TRACK_MUID);
+		emptyMuids.put(UidType.USER, EMPTY_USER_MUID);
+		emptyMuids.put(UidType.VENUE, EMPTY_VENUE_MUID);
+	}
 
 	/**
 	 * The number of MUIDs created at <lastCreationTime>
@@ -24,7 +70,19 @@ public class Muid extends Uid implements Serializable {
 	private static AtomicInteger lastCreatedID = new AtomicInteger(0);
 
 	/**
-	 * creates a new Muid object with a unique ID
+	 * 
+	 * @param id
+	 * @return
+	 */
+	public static Muid create(final long id) {
+		if (UidConverter.getTimestamp(id) == 0) {
+			return emptyMuids.get(UidType.parseId(id));
+		}
+		return new Muid(id);
+	}
+
+	/**
+	 * Creates a new Muid object of the given type
 	 * 
 	 * If a Muid with the same type has already been created during the current
 	 * second the ID value will be incremented
@@ -36,7 +94,7 @@ public class Muid extends Uid implements Serializable {
 	public static Muid create(final UidType type) {
 		if (type == UidType.URL) {
 			throw new MetalconRuntimeException(
-					"Do not try to instantiate a Muid with the URL type. Use UrlID.create instead!");
+					"Do not try to create a Muid with the URL type! Use UrlID.create instead.");
 		}
 
 		int timestamp = (int) (System.currentTimeMillis() / 1000);
