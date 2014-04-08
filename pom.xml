@@ -8,7 +8,7 @@
 
  <modelVersion>4.0.0</modelVersion>
  <artifactId>muid</artifactId>
- <version>0.3.1</version>
+ <version>0.3.2</version>
  <name>muid</name>
  <url>https://github.com/Metalcon/muid</url>
 
@@ -21,7 +21,7 @@
   <dependency>
    <groupId>de.metalcon</groupId>
    <artifactId>db-helper</artifactId>
-   <version>0.1.0</version>
+   <version>0.1.1</version>
   </dependency>
   <dependency>
    <groupId>junit</groupId>
