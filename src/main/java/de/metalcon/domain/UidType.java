@@ -24,8 +24,14 @@ import de.metalcon.domain.helper.UnknownMuidException;
  * <li>venue</li>
  * <li>url</li>
  * </ul>
+ * 
+ * WARNING:<br>
+ * Although this list is sorted alphabetically you <b>MUST</b> sort the
+ * enumerations below by their raw identifier.<br>
+ * Add new UID types to the end of the list.
  */
 public enum UidType {
+
     /**
      * band linked to a genre
      */
@@ -37,29 +43,14 @@ public enum UidType {
     CITY("city", (short) 1),
 
     /**
-     * disc of a record
-     */
-    DISC("disc", (short) 11),
-
-    /**
      * event hosted in a venue
      */
     EVENT("event", (short) 2),
 
     /**
-     * gallery (manually) created by an entity
-     */
-    GALLERY("gallery", (short) 12),
-
-    /**
      * metal genre
      */
     GENRE("genre", (short) 3),
-
-    /**
-     * image linked to entities
-     */
-    IMAGE("image", (short) 13),
 
     /**
      * music instrument
@@ -94,7 +85,22 @@ public enum UidType {
     /**
      * external URL
      */
-    URL("url", (short) 10);
+    URL("url", (short) 10),
+
+    /**
+     * disc of a record
+     */
+    DISC("disc", (short) 11),
+
+    /**
+     * gallery (manually) created by an entity
+     */
+    GALLERY("gallery", (short) 12),
+
+    /**
+     * image linked to entities
+     */
+    IMAGE("image", (short) 13);
 
     /**
      * Map to map identy type names (strings) to enums
@@ -207,4 +213,5 @@ public enum UidType {
     public static short getLargestAllowedType() {
         return (short) UidType.values().length;
     }
+
 }
