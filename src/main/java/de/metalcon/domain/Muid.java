@@ -89,8 +89,20 @@ public class Muid extends Uid implements Serializable {
 	 * @param alphaNumericValue
 	 *            unique identifier in base64 format
 	 */
-	public static Muid createFromID(String alphaNumericValue) {
+	public static Muid createFromID(final String alphaNumericValue) {
 		return createFromID(UidConverter.deserialize(alphaNumericValue));
+	}
+
+	/**
+	 * Returns the empty Muid related to the given type or null it the type is
+	 * not valid
+	 * 
+	 * @param type
+	 *            The type of the Muid to be returned
+	 * @return An empty Muid with the given type
+	 */
+	public static Muid getEmptyType(final UidType type) {
+		return emptyMuids.get(type);
 	}
 
 	/**
@@ -141,7 +153,7 @@ public class Muid extends Uid implements Serializable {
 	 * @param value
 	 *            unique identifier
 	 */
-	private Muid(long value) {
+	private Muid(final long value) {
 		super(value);
 	}
 
@@ -151,10 +163,6 @@ public class Muid extends Uid implements Serializable {
 	 * @return The timestamp this Muid has been created
 	 */
 	public int getTimestamp() {
-		if (getTypeValue() == UidType.URL.getRawIdentifier()) {
-
-		}
-
 		return UidConverter.getTimestamp(value);
 	}
 
@@ -166,5 +174,15 @@ public class Muid extends Uid implements Serializable {
 	 */
 	public short getFineTime() {
 		return UidConverter.getFineTime(value);
+	}
+
+	/**
+	 * Is this object an empty Muid?
+	 * 
+	 * @return true if the timestamp is 0 which is only the case if this object
+	 *         is an empty muid
+	 */
+	public boolean isEmpty() {
+		return getTimestamp() == 0;
 	}
 }

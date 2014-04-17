@@ -54,7 +54,7 @@ public class Uid implements Serializable {
 	 * @param value
 	 *            unique identifier
 	 */
-	protected Uid(long value) {
+	protected Uid(final long value) {
 		this.value = value;
 
 		if (!UidConverter.checkType(getTypeValue())) {
@@ -81,7 +81,7 @@ public class Uid implements Serializable {
 	/**
 	 * @return type of the MuidType enum represented by this MUID's type
 	 */
-	public UidType getMuidType() throws UnknownMuidException {
+	public UidType getType() throws UnknownMuidException {
 		return UidType.parseShort(getTypeValue());
 	}
 
@@ -102,7 +102,7 @@ public class Uid implements Serializable {
 	}
 
 	@Override
-	public boolean equals(Object other) {
+	public boolean equals(final Object other) {
 		if (other == this) {
 			return true;
 		}
