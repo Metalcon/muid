@@ -8,8 +8,8 @@ public class DbOptions extends Options {
 
     static {
         try {
-            Options.initialize("/usr/share/metalcon/urlId", MethodHandles
-                    .lookup().lookupClass());
+            Options.initialize("/usr/share/metalcon/uid/config.txt",
+                    MethodHandles.lookup().lookupClass());
         } catch (IllegalArgumentException | IllegalAccessException e) {
             e.printStackTrace();
             System.exit(1);
