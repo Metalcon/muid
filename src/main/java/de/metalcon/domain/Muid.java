@@ -69,7 +69,12 @@ public class Muid extends Uid implements Serializable {
      */
     public static Muid createFromID(final long id) {
         if (UidConverter.getTimestamp(id) == 0) {
-            return emptyMuids.get(UidType.parseId(id));
+            Muid muid = emptyMuids.get(UidType.parseId(id));
+            if (muid.value != id) {
+                throw new MetalconRuntimeException(
+                        "You've tried to create a Muid with a 0-timestamp but with source or finetime not being 0. Only empty Muids may have 0 timestamps and should only have the type being not 0.");
+            }
+            return muid;
         }
         return new Muid(id);
     }
