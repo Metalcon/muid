@@ -35,6 +35,8 @@ echo "set directory rights to \"$SERVER_DIR_RIGHTS\""
 rm -rf $SERVER_DIR/*
 echo 'server directory cleaned'
 
+mkdir -p `dirname $CONFIG_PATH`
+sudo chown $SERVER_DIR_RIGHTS `dirname $CONFIG_PATH`
 cp $CONFIG_NAME $CONFIG_PATH
 echo "server config is \"$CONFIG_PATH\""
 
